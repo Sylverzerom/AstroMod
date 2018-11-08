@@ -84,15 +84,18 @@ digitalWrite(slowInput, HIGH);
 
 void loop() {
 
-  slowStatus = FuncButtonPress(slowInput);
-
+ guideStatus = FuncButtonPress(guideInput);	//Abfrage guide-Taste
+ if (guideStatus == 1){
+  guideMove();
+ }
+	
+slowStatus = FuncButtonPress(slowInput);	//Abfrage slowmove-Taste
  if (slowStatus == 1){
   slowMove();
  }
  else{
   fastMove();
  }
-delay (50); //debounce
 }
 
 // Interrupt routine from Timer1 (used for RA axis)
@@ -101,7 +104,18 @@ ISR(TIMER1_COMPA_vect) {
   digitalWrite(stepRA, toggleRA); // Output step PIN is HIGH/LOW with the interrupt from Timer 
   toggleRA = !toggleRA; // Pin is changed from HIGH to LOW every interrupt
  // }
+/*	else{
+		digitalWrite(stepRA,0); //Step Ausgang immer wieder auf Low setzen
+	}*/
 }
+
+void guideMove(){
+	 if (guideMoveStatus==0){
+	 }
+	resetStatus();
+	guideMoveStatus=1;
+}
+
 
 void slowMove() {
   if (slowMoveStatus==0){
@@ -148,6 +162,7 @@ byte FuncButtonPress (byte InputPin){
 }
 if (ButtonPressed ==0 ) { //else statt if testen, wenn das so funktioniert 
 ButtonStatus = 0;
-  return FunctionStatus;
+delay (50); //debounce	
+return FunctionStatus;
 }	
 }
