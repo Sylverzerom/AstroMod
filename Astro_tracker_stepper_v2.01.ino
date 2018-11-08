@@ -98,20 +98,10 @@ else {
 delay (50); //debounce
 }
 
+// Interrupt routine from Timer1 (used for RA axis)
 ISR(TIMER1_COMPA_vect) {
-/*
-  if (toggleRA == 1) {
-    digitalWrite(stepRA, HIGH);
-    toggleRA = 0;
-  }
-  else {
-    digitalWrite(stepRA, LOW);
-    toggleRA = 1;
-  }
-  */
-  digitalWrite(stepRA, toggleRA);
-  toggleRA = !toggleRA;
-   
+  digitalWrite(stepRA, toggleRA); // Output step PIN is HIGH/LOW with the interrupt from Timer 
+  toggleRA = !toggleRA; // Pin is changed from HIGH to LOW every interrupt
 }
 
 void slowMove() {
@@ -122,8 +112,8 @@ void slowMove() {
   TCCR1B |= (0 << CS12) | (1 << CS11) | (1 << CS10);  // Set CS12, CS11 and CS10 bits for 64 prescaler
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei();//allow interrupts
+  resetStatus(); 
   slowMoveStatus=1;
-  fastMoveStatus = 0;
   } 
 }
 
@@ -135,9 +125,13 @@ void fastMove() {
   TCCR1B |= (0 << CS12) | (0 << CS11) | (1 << CS10);  // Set CS12, CS21, CS10 bits for 1 prescaler
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei();//allow interrupts
+  resetStatus();  
   fastMoveStatus==1;
-  slowMoveStatus=0; 
    }
 }
 
-
+void resetStatus(){
+  slowMoveStatus=0;
+  fastMoveStatus = 0;
+  guideStatus=0;
+  {
