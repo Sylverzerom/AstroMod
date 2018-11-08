@@ -49,6 +49,8 @@ boolean guideStatus = 0;
 
 void setup() {
 
+Serial.begin(9600); //for Debug and Testing only 
+	
   // ---Ausgaenge definieren---
 pinMode(enableRA, OUTPUT);
 pinMode(directionRA, OUTPUT);
@@ -96,6 +98,13 @@ slowStatus = FuncButtonPress(slowInput);	//Abfrage slowmove-Taste
  else{
   fastMove();
  }
+//serial debugging starts here
+Serial.print("Status slow: ");
+Serial.println(slowStatus);
+Serial.print("Status guide: ");
+Serial.println(guideStatus);	
+//serial debugging ends here
+delay (100); //debounce
 }
 
 // Interrupt routine from Timer1 (used for RA axis)
@@ -162,7 +171,7 @@ byte FuncButtonPress (byte InputPin){
 }
 if (ButtonPressed ==0 ) { //else statt if testen, wenn das so funktioniert 
 ButtonStatus = 0;
-delay (50); //debounce	
+//delay (50); //debounce	
 return FunctionStatus;
 }	
 }
