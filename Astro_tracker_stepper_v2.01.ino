@@ -59,13 +59,20 @@ pinMode(ms2RA, OUTPUT);
 pinMode(ledMode, OUTPUT);
 
 // ---Eingaenge definieren---
+pinMode(RAplus, INPUT);
+pinMode(RAminus, INPUT);
+pinMode(guideInput, INPUT);
+pinMode(slowInput, INPUT); 
+
+ // ---interne pull-ups für die Eingänge anschalten---
 digitalWrite(RAplus, HIGH);
 digitalWrite(RAminus, HIGH);
 digitalWrite(guideInput, HIGH);
 digitalWrite(slowInput, HIGH);
 
+//Timer configuration
   cli();//stop interrupts
-
+  
   //Timer1 Config
   TCCR1A = 0;// set entire TCCR1A register to 0
   TCCR1B = 0;// same for TCCR1B
@@ -77,25 +84,8 @@ digitalWrite(slowInput, HIGH);
 
 void loop() {
 
-slowButtonPressed = digitalRead(slowInput);
- if (slowButtonStatus != slowButtonPressed) { // Aenderung am Schalter?
-   if (slowButtonPressed == 1) { // gedrueckt
-      slowStatus = !slowStatus; // ...welche das ist wird abgewechselt.
-      digitalWrite(ledMode, slowStatus);
-   }
-   slowButtonStatus = slowButtonPressed; // Merken
-    // Debounce
- }
+  slowStatus = FuncButtonPress(slowInput);
 
-/*
-slowButtonPressed = digitalRead(slowInput);
-if (slowButtonPressed) { // gedrueckt
-      slowStatus = 1;
-}
-else {
-  slowStatus=0;
-  }
-*/  
  if (slowStatus == 1){
   slowMove();
  }
@@ -144,3 +134,20 @@ void resetStatus(){
   fastMoveStatus = 0;
   guideStatus=0;
   {
+
+//Unterfunktion zur Abfrage eines Eingangpins    
+byte FuncButtonPress (byte InputPin){
+  byte ButtonPressed;
+  byte ButtonStatus;
+  ButtonPressed = digitalread (InputPin);
+  if (ButtonPressed == 1){
+	  if ( ButtonStatus != ButtonPressed){
+		  FunctionStatus !=  FunctionStatus;
+		  ButtonStatus = 1;
+	  }
+}
+if (ButtonPressed ==0 ) { //else statt if testen, wenn das so funktioniert 
+ButtonStatus = 0;
+  return FunctionStatus;
+}	
+}
