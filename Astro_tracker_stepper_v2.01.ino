@@ -8,18 +8,25 @@
 */
 // ---Pins definieren---
 // A4988 fuer RA-Achse
-#define enableRA 3
-#define directionRA 4
-#define stepRA 5
-#define ms1RA 6
-#define ms2RA 7
+#define enableRA 2
+#define directionRA 3
+#define stepRA 4
+#define ms1RA 5
+#define ms2RA 6
+
+// A4988 fuer DEC-Achse
+#define enableDEC 7
+#define directionDEC 8
+#define stepDEC 9
+#define ms1DEC 10
+#define ms2DEC 11
 
 //hand controller
 #define RAplus A0
 #define RAminus A1
 #define guideInput A4
 #define slowInput A5
-#define ledMode A6
+#define ledMode 12
 
 //---Konstanten definieren---
 //Timer compare Werte fÃƒÂ¼r Geschwindigkeit der Schritte
@@ -100,8 +107,10 @@ delay (50); //debounce
 
 // Interrupt routine from Timer1 (used for RA axis)
 ISR(TIMER1_COMPA_vect) {
+ // if ((digitalRead(RAplus)==1) || (digitalRead(RAminus)==1) || guideStatus==1){ //TEST WITH INPUT BUTTONS RA
   digitalWrite(stepRA, toggleRA); // Output step PIN is HIGH/LOW with the interrupt from Timer 
   toggleRA = !toggleRA; // Pin is changed from HIGH to LOW every interrupt
+ // }
 }
 
 void slowMove() {
