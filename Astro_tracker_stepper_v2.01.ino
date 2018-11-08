@@ -1,10 +1,8 @@
-
 /*
   Der Schrittmotors soll alle 0,127s ein Schritt machen.
   Als Treiber soll der A4988 Baustein genutzt werden.
   Der Abstand der Schrittdauer entspricht einer Timerfrequenz von 15,76Hz. Denn fÃƒÂ¼r 0,0635s muss der Pin HIGH sein und fÃƒÂ¼r 0,0635s LOW.
   Somit entsteht ein 50% Rechtecksignal mit einer Peroidendauer von 0,127s.
-
 */
 // ---Pins definieren---
 // A4988 fuer RA-Achse
@@ -41,16 +39,22 @@ boolean slowStatus = 0;
 
 boolean slowMoveStatus = 0;
 boolean fastMoveStatus = 0;
+boolean guideMoveStatus = 0;
 
 boolean guideButtonStatus = 0;
-boolean guideuttonPressed = 0;
+boolean guideButtonPressed = 0;
 boolean guideStatus = 0;
 
+boolean ButtonPressed;
+boolean ButtonStatus;
+boolean FuncStatus;
+
+const int debounceTime =80;
 
 void setup() {
 
 Serial.begin(9600); //for Debug and Testing only 
-	
+  
   // ---Ausgaenge definieren---
 pinMode(enableRA, OUTPUT);
 pinMode(directionRA, OUTPUT);
@@ -61,16 +65,10 @@ pinMode(ms2RA, OUTPUT);
 pinMode(ledMode, OUTPUT);
 
 // ---Eingaenge definieren---
-pinMode(RAplus, INPUT);
-pinMode(RAminus, INPUT);
-pinMode(guideInput, INPUT);
-pinMode(slowInput, INPUT); 
-
- // ---interne pull-ups für die Eingänge anschalten---
-digitalWrite(RAplus, HIGH);
-digitalWrite(RAminus, HIGH);
-digitalWrite(guideInput, HIGH);
-digitalWrite(slowInput, HIGH);
+pinMode(RAplus, INPUT_PULLUP);
+pinMode(RAminus, INPUT_PULLUP);
+pinMode(guideInput, INPUT_PULLUP);
+pinMode(slowInput, INPUT_PULLUP); 
 
 //Timer configuration
   cli();//stop interrupts
@@ -86,43 +84,64 @@ digitalWrite(slowInput, HIGH);
 
 void loop() {
 
- guideStatus = FuncButtonPress(guideInput);	//Abfrage guide-Taste
+ guideStatus = FuncButtonPress(guideInput,guideStatus); //Abfrage guide-Taste
  if (guideStatus == 1){
   guideMove();
+  //serial debugging starts here
+Serial.print("ButtonPressed: ");
+Serial.print(ButtonPressed);
+Serial.print(" | ButtonStatus: ");
+Serial.print(ButtonStatus);  
+Serial.print(" | FuncStatus: ");
+Serial.print(FuncStatus); 
+Serial.print(" | Status slow: ");
+Serial.print(slowStatus);
+Serial.print(" | Status guide: ");
+Serial.println(guideStatus);
+  
+//serial debugging ends here
+  return;
  }
-	
-slowStatus = FuncButtonPress(slowInput);	//Abfrage slowmove-Taste
+
+
+ 
+slowStatus = FuncButtonPress(slowInput,slowStatus);  //Abfrage slowmove-Taste
  if (slowStatus == 1){
   slowMove();
  }
  else{
   fastMove();
  }
+ 
 //serial debugging starts here
-Serial.print("Status slow: ");
-Serial.println(slowStatus);
-Serial.print("Status guide: ");
-Serial.println(guideStatus);	
+Serial.print("ButtonPressed: ");
+Serial.print(ButtonPressed);
+Serial.print(" | ButtonStatus: ");
+Serial.print(ButtonStatus);  
+Serial.print(" | FuncStatus: ");
+Serial.print(FuncStatus); 
+Serial.print(" | Status slow: ");
+Serial.print(slowStatus);
+Serial.print(" | Status guide: ");
+Serial.println(guideStatus);
+  
 //serial debugging ends here
-delay (100); //debounce
+//delay (debounceTime); //debounce
 }
 
 // Interrupt routine from Timer1 (used for RA axis)
 ISR(TIMER1_COMPA_vect) {
  // if ((digitalRead(RAplus)==1) || (digitalRead(RAminus)==1) || guideStatus==1){ //TEST WITH INPUT BUTTONS RA
   digitalWrite(stepRA, toggleRA); // Output step PIN is HIGH/LOW with the interrupt from Timer 
-  toggleRA = !toggleRA; // Pin is changed from HIGH to LOW every interrupt
- // }
-/*	else{
-		digitalWrite(stepRA,0); //Step Ausgang immer wieder auf Low setzen
-	}*/
+  toggleRA= !toggleRA; // Pin is changed from HIGH to LOW every interrupt
 }
 
 void guideMove(){
-	 if (guideMoveStatus==0){
-	 }
-	resetStatus();
-	guideMoveStatus=1;
+   if (guideMoveStatus==0){
+  slowStatus = 0;
+  resetStatus();
+  guideMoveStatus=1; 
+  }
 }
 
 
@@ -148,30 +167,32 @@ void fastMove() {
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei();//allow interrupts
   resetStatus();  
-  fastMoveStatus==1;
+  fastMoveStatus = 1;
    }
 }
 
 void resetStatus(){
   slowMoveStatus=0;
   fastMoveStatus = 0;
-  guideStatus=0;
-  {
+  guideMoveStatus=0;
+}
 
 //Unterfunktion zur Abfrage eines Eingangpins    
-byte FuncButtonPress (byte InputPin){
-  byte ButtonPressed;
-  byte ButtonStatus;
-  ButtonPressed = digitalread (InputPin);
-  if (ButtonPressed == 1){
-	  if ( ButtonStatus != ButtonPressed){
-		  FunctionStatus !=  FunctionStatus;
-		  ButtonStatus = 1;
-	  }
-}
-if (ButtonPressed ==0 ) { //else statt if testen, wenn das so funktioniert 
-ButtonStatus = 0;
-//delay (50); //debounce	
-return FunctionStatus;
-}	
+boolean FuncButtonPress (byte InputPin, boolean FuncStatus){
+  
+  //boolean FuncStatus;
+  ButtonPressed = !digitalRead (InputPin);
+  if (ButtonPressed==1){
+  delay (debounceTime); //debounce
+  if ((ButtonPressed==1) && (ButtonStatus==0)){
+        FuncStatus= !FuncStatus;
+        ButtonStatus=1;
+    }
+    }
+    else{
+      ButtonStatus=0;
+      delay (debounceTime);
+    }
+return FuncStatus;
+ 
 }
