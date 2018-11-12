@@ -4,15 +4,15 @@
   Der Abstand der Schrittdauer entspricht einer Timerfrequenz von 15,76Hz. Denn fÃƒÂ¼r 0,0635s muss der Pin HIGH sein und fÃƒÂ¼r 0,0635s LOW.
   Somit entsteht ein 50% Rechtecksignal mit einer Peroidendauer von 0,127s.
 */
-// ---Pins definieren---
-// A4988 fuer RA-Achse
+// ---define PINs---
+// A4988 for RA axis
 #define enableRA 2
 #define directionRA 3
 #define stepRA 4
 #define ms1RA 5
 #define ms2RA 6
 
-// A4988 fuer DEC-Achse
+// A4988 for DEC axis
 #define enableDEC 7
 #define directionDEC 8
 #define stepDEC 9
@@ -26,8 +26,8 @@
 #define slowInput A5
 #define ledMode 12
 
-//---Konstanten definieren---
-//Timer compare Werte fÃƒÂ¼r Geschwindigkeit der Schritte
+//---define constants---
+//Timer compare values for diffrent speeds of the stepper
 const int compareRAfast = 12670; //siehe Berechnung Excel
 const int compareRAslow = 25838;
 const int compareRAguide = 31677;
@@ -56,9 +56,9 @@ boolean ledBlinkStatus =0;
 
 void setup() {
 
-Serial.begin(9600); //for Debug and Testing only 
+Serial.begin(9600); //for debug and testing only 
   
-  // ---Ausgaenge definieren---
+// ---define output ports---
 pinMode(enableRA, OUTPUT);
 pinMode(directionRA, OUTPUT);
 pinMode(stepRA, OUTPUT);
@@ -67,7 +67,7 @@ pinMode(ms2RA, OUTPUT);
 
 pinMode(ledMode, OUTPUT);
 
-// ---Eingaenge definieren---
+// ---define intput ports---
 pinMode(RAplus, INPUT_PULLUP);
 pinMode(RAminus, INPUT_PULLUP);
 pinMode(guideInput, INPUT_PULLUP);
@@ -85,12 +85,13 @@ pinMode(slowInput, INPUT_PULLUP);
   sei();//allow interrupts
 }
 
-void loop() {
+void loop() { //main loop starts here!
 
- guideStatus = FuncButtonPress(guideInput,guideStatus); //Abfrage guide-Taste
+ guideStatus = FuncButtonPress(guideInput,guideStatus); //scanning guide-button on hand controller
  if (guideStatus == 1){
   guideMove();
-  //serial debugging starts here
+   
+//serial debugging starts here
 Serial.print("ButtonPressed: ");
 Serial.print(ButtonPressed);
 Serial.print(" | ButtonStatus: ");
@@ -104,11 +105,11 @@ Serial.println(guideStatus);
   
 //serial debugging ends here
   return;
- }
+ } 
 
 
  
-slowStatus = FuncButtonPress(slowInput,slowStatus);  //Abfrage slowmove-Taste
+slowStatus = FuncButtonPress(slowInput,slowStatus);  //scanning slow-button on hand controller
  if (slowStatus == 1){
   slowMove();
  }
@@ -129,8 +130,8 @@ Serial.print(" | Status guide: ");
 Serial.println(guideStatus);
   
 //serial debugging ends here
-//delay (debounceTime); //debounce
-}
+
+}//main loop ends here!
 
 // Interrupt routine from Timer1 (used for RA axis)
 ISR(TIMER1_COMPA_vect) {
@@ -138,7 +139,7 @@ ISR(TIMER1_COMPA_vect) {
   digitalWrite(stepRA, toggleRA); // Output step PIN is HIGH/LOW with the interrupt from Timer 
   toggleRA= !toggleRA; // Pin is changed from HIGH to LOW every interrupt
   //}
-  if (guideStatus==1){ //Blinkende LED wenn guide-Mode aktiv (Blinken über Timer1 Zählvariable)
+  if (guideStatus==1){ //blinking LED if guide-Mode is activ (blinking is done by counting up every interrupt ~0.5Hz)
     ledBlinkCount++;
     if (ledBlinkCount == 255){
       ledBlinkStatus= !ledBlinkStatus;
@@ -150,7 +151,7 @@ ISR(TIMER1_COMPA_vect) {
 
 void guideMove(){
    if (guideMoveStatus==0){
-  slowStatus = 0;
+  slowStatus = 0; //guiding mode kills manual mode
   resetStatus();
   guideMoveStatus=1; 
   }
@@ -165,6 +166,9 @@ void slowMove() {
   TCCR1B |= (0 << CS12) | (1 << CS11) | (1 << CS10);  // Set CS12, CS11 and CS10 bits for 64 prescaler
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei();//allow interrupts
+   // Pin config for step-config on the driverboard ms1RA ms2RA
+   //...
+   //
   resetStatus(); 
   slowMoveStatus=1;
   } 
@@ -178,6 +182,9 @@ void fastMove() {
   TCCR1B |= (0 << CS12) | (0 << CS11) | (1 << CS10);  // Set CS12, CS21, CS10 bits for 1 prescaler
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei();//allow interrupts
+  // Pin config for step-config on the driverboard ms1RA ms2RA
+  //...
+  //
   resetStatus();  
   fastMoveStatus = 1;
    }
