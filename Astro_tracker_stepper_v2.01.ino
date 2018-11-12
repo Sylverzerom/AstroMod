@@ -51,6 +51,9 @@ boolean FuncStatus;
 
 const int debounceTime =80;
 
+byte ledBlinkCount =0;
+boolean ledBlinkStatus =0;
+
 void setup() {
 
 Serial.begin(9600); //for Debug and Testing only 
@@ -134,6 +137,15 @@ ISR(TIMER1_COMPA_vect) {
  // if ((digitalRead(RAplus)==1) || (digitalRead(RAminus)==1) || guideStatus==1){ //TEST WITH INPUT BUTTONS RA
   digitalWrite(stepRA, toggleRA); // Output step PIN is HIGH/LOW with the interrupt from Timer 
   toggleRA= !toggleRA; // Pin is changed from HIGH to LOW every interrupt
+  //}
+  if (guideStatus==1){ //Blinkende LED wenn guide-Mode aktiv (Blinken über Timer1 Zählvariable)
+    ledBlinkCount++;
+    if (ledBlinkCount == 255){
+      ledBlinkStatus= !ledBlinkStatus;
+      ledBlinkCount=0;
+      digitalWrite (ledMode,ledBlinkStatus);
+    }
+  }
 }
 
 void guideMove(){
@@ -175,6 +187,7 @@ void resetStatus(){
   slowMoveStatus=0;
   fastMoveStatus = 0;
   guideMoveStatus=0;
+  digitalWrite (ledMode,0);
 }
 
 //Unterfunktion zur Abfrage eines Eingangpins    
