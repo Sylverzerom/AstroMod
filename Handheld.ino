@@ -22,7 +22,7 @@
 const int debounceTime = 50;
 const int SerialBaudRate = 9600;
 String SerialSeperate = ":";
-String SerialEnd = ":X";
+String SerialSendOld;
 
 boolean FuncStatus;
 //boolean ButtonPressed;
@@ -92,7 +92,7 @@ void loop() {
   
   //--- Check Speed dial here ---
   MoveSpeed = analogRead(AnalogSpeed);
-  MoveSpeed = MoveSpeed / 4;
+  MoveSpeed = MoveSpeed / 40;
   
   //--- Check for FOCUS keys here (when locked in guide, then put after DEC keys---
   FocPlusPressed = FuncButtonPress (FocPlusInput,FocPlusPressed); //read RA+ key
@@ -150,8 +150,14 @@ delay(100);
 }
 
 void SendSerial(){
-  String SerialHandheld = (GuideStatus + SerialSeperate + RaStatus + SerialSeperate + DecStatus + SerialSeperate + FocStatus + SerialSeperate + MoveSpeed);
-  Serial.println(SerialHandheld);
+  //create the string with the keys and values
+   String SerialSendActual = (GuideStatus + SerialSeperate + RaStatus + SerialSeperate + DecStatus + SerialSeperate + FocStatus + SerialSeperate + MoveSpeed); 
+   if ( SerialSendActual != SerialSendOld){ //check if the message has changed, otherwise only send changes over serial
+    Serial.println(SerialSendActual);
+  SerialSendOld = SerialSendActual;
+   }
+ else{
+ }
    return;
   }
 
