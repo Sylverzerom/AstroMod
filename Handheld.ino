@@ -25,9 +25,7 @@ String SerialSeperate = ":";
 String SerialSendOld;
 
 boolean FuncStatus;
-//boolean ButtonPressed;
 boolean ButtonStatus;
-
 
 boolean RaPlusPressed;
 boolean RaMinusPressed;
@@ -61,16 +59,10 @@ pinMode(LedGuideOutput, OUTPUT);
   
  delay(1000);
  Serial.begin(SerialBaudRate);
- //Serial.parseInt();
-
- resetStatus();
 }
 
-
 void loop() {
-  // put your main code here, to run repeatedly:
-//StartMain: //Löschen
-
+  // START main loop
   //--- Check for guide key ---
  GuidePressed = FuncButtonPress (GuideInput,GuidePressed); //scanning guide-button on hand controller
  //Serial.print("Guide pressed: "); //debug
@@ -92,7 +84,7 @@ void loop() {
   
   //--- Check Speed dial here ---
   MoveSpeed = analogRead(AnalogSpeed);
-  MoveSpeed = MoveSpeed / 40;
+  MoveSpeed = MoveSpeed / 40; // changeback to 4 after soldering a poti on this pin
   
   //--- Check for FOCUS keys here (when locked in guide, then put after DEC keys---
   FocPlusPressed = FuncButtonPress (FocPlusInput,FocPlusPressed); //read RA+ key
@@ -109,9 +101,6 @@ void loop() {
     FocStatus=0; // if none or all RA keys are pressed, Status is 0
   }
   
- 
- 
-  
   //--- Check for RA keys ---
   RaPlusPressed = FuncButtonPress (RaPlusInput,RaPlusPressed); //read RA+ key
   RaMinusPressed = FuncButtonPress (RaMinusInput,RaMinusPressed); //read RA- key
@@ -124,7 +113,7 @@ void loop() {
   else {
     RaStatus=0; // if none or all RA keys are pressed, Status is 0
   }
-    
+   
   //--- Check for DEC keys ---
   DecPlusPressed = FuncButtonPress (DecPlusInput,DecPlusPressed); //read DEC+ key
   DecMinusPressed = FuncButtonPress (DecMinusInput,DecMinusPressed); //read DEC- key
@@ -142,12 +131,11 @@ void loop() {
   if (GuideStatus == 1 ){ //If guide status is ON, then lock the buttons for RA & DEC
       RaStatus=0; // Lock RA buttons
       DecStatus=0; // Lock DEC buttons
-      //FocStatus=0;
+      //FocStatus=0; // uncomment if Focuser should be locked in guide mode
   }
 SendSerial();
-delay(100); 
- 
-}
+delay(100);  
+} //End loop
 
 void SendSerial(){
   //create the string with the keys and values
@@ -160,14 +148,6 @@ void SendSerial(){
  }
    return;
   }
-
-void resetStatus(){
-  GuideStatus=0;
-  RaStatus=0;
-  DecStatus = 0;
-  FocStatus=0;
-  return;
-}
   
 //debounce of input pins   
 boolean FuncButtonPress (byte InputPin, boolean FuncStatus){
@@ -182,5 +162,4 @@ boolean FuncButtonPress (byte InputPin, boolean FuncStatus){
       FuncStatus= 0;
     }
 return FuncStatus;
- 
 }
