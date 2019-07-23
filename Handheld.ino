@@ -4,7 +4,7 @@
  * B = RA axis+ (1) RA axis- (2)
  * C = DEC axis+ (1) DEC axis- (2)
  * D = Focuser+ (1) Focuser- (2) 
- * E = Analogvalue for movement speed 0-1023
+ * E = Analogvalue for movement speed 0-255
  */
 
 //hand controller PINOUT Arduino Pro Mini 5V
