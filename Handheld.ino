@@ -52,6 +52,7 @@ pinMode(LedGuideOutput, OUTPUT);
   
  delay(1000);
  Serial.begin(SerialBaudRate);
+ Serial.parseInt();
 }
 
 void loop() 
@@ -125,7 +126,7 @@ void loop()
  void SendSerial(){
   string SerialHandheld = (GuideStatus + SerialSeperate + RaStatus + SerialSeperate + DecStatus + SerialSeperate + FocStatus + SerialSeperate + MoveSpeed + SerialEnd);
    // wenn das nicht geht probieren mit byte als Variablen für string statt boolean
-  Serial.print(SerialHandheld);
+  Serial.println(SerialHandheld);
    delay(100)
      //goto StartMain; //Löschen
   }
