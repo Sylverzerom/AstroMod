@@ -1,5 +1,5 @@
 /*the handheld will send a message over serial bus:
- * A:B:C:D:EEEE:X
+ * A:B:C:D:EEEE
  * A = Guide active(1) guide inactive(0)
  * B = RA axis+ (1) RA axis- (2)
  * C = DEC axis+ (1) DEC axis- (2)
@@ -150,7 +150,7 @@ delay(100);
 }
 
 void SendSerial(){
-  String SerialHandheld = (GuideStatus + SerialSeperate + RaStatus + SerialSeperate + DecStatus + SerialSeperate + FocStatus + SerialSeperate + MoveSpeed + SerialEnd);
+  String SerialHandheld = (GuideStatus + SerialSeperate + RaStatus + SerialSeperate + DecStatus + SerialSeperate + FocStatus + SerialSeperate + MoveSpeed);
   Serial.println(SerialHandheld);
    return;
   }
