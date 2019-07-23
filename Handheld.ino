@@ -92,7 +92,7 @@ void loop() {
   
   //--- Check Speed dial here ---
   MoveSpeed = analogRead(AnalogSpeed);
-  //MoveSpeed = MoveSpeed / 10;
+  MoveSpeed = MoveSpeed / 4;
   
   //--- Check for FOCUS keys here (when locked in guide, then put after DEC keys---
   FocPlusPressed = FuncButtonPress (FocPlusInput,FocPlusPressed); //read RA+ key
