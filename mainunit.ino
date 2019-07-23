@@ -34,13 +34,13 @@ const int compareRAguide = 31677;
 
 const int SerialBaudRate = 9600;
 
-/*
+
 byte GuideStatus;
 byte RaStatus;
 byte DecStatus;
 byte FocStatus;
 byte MoveSpeedRaw;
-*/
+
 void setup() {
   
 // ---define output ports---
@@ -156,11 +156,11 @@ void resetStatus(){
 }
 
 void receiveDataSerial(){
- byte GuideStatus = atof(strtok(string_received, ":"));
- byte RaStatus = atof(strtok(NULL, ":"));
- byte DecStatus = atof(strtok(NULL, ":"));
- byte FocStatus = atof(strtok(NULL, ":"));
- byte MoveSpeedRaw = atof(strtok(NULL, ":"));
+GuideStatus = atof(strtok(string_received, ":"));
+RaStatus = atof(strtok(NULL, ":"));
+DecStatus = atof(strtok(NULL, ":"));
+FocStatus = atof(strtok(NULL, ":"));
+MoveSpeedRaw = atof(strtok(NULL, ":"));
  return;
  }
 
