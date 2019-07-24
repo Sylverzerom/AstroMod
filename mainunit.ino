@@ -79,14 +79,28 @@ pinMode(ms2Foc, OUTPUT);
 }
 
 void loop() { //main loop starts here!
+  
+  //--- check Serial Connection for new data and seperate the string into diffrent variables ---
+   if(Serial.available()) //while there is data available
+  {
+    string_received = Serial.read();  // read serial data into string
+    GuideStatus = atof(strtok(string_received, ":"));
+    RaStatus = atof(strtok(NULL, ":"));
+    DecStatus = atof(strtok(NULL, ":"));
+    FocStatus = atof(strtok(NULL, ":"));
+    MoveSpeedRaw = atof(strtok(NULL, ":"));
+  }
 
- guideStatus = FuncButtonPress(guideInput,guideStatus); //scanning guide-button on hand controller
- if (guideStatus == 1){
+ if (GuideStatus == 1){
   guideMove();
-  return;
  } 
-
-
+  else{   //weglassen??
+  }
+  
+  
+  
+  if (RaStatus == 1){
+    
  
 slowStatus = FuncButtonPress(slowInput,slowStatus);  //scanning slow-button on hand controller
  if (slowStatus == 1){
@@ -101,35 +115,34 @@ slowStatus = FuncButtonPress(slowInput,slowStatus);  //scanning slow-button on h
 
 // Interrupt routine from Timer1 (used for RA axis)
 ISR(TIMER1_COMPA_vect) {
-  digitalWrite(stepRa, toggleRa); // Output step PIN is HIGH/LOW with the interrupt from Timer 
-  toggleRA= !toggleRA; // Pin is changed from HIGH to LOW every interrupt
+  digitalWrite(stepRa, toggle);// Output step PIN is HIGH/LOW with the interrupt from Timer 
+  digitalWrite(stepDec, toggle);// Output step PIN is HIGH/LOW with the interrupt from Timer 
+  digitalWrite(stepFoc, toggle);// Output step PIN is HIGH/LOW with the interrupt from Timer 
+  toggle= !toggle; // Pin is changed from HIGH to LOW every interrupt
   }
   
 }
 
 void guideMove(){
-   if (guideMoveStatus==0){
-  slowStatus = 0; //guiding mode kills manual mode
-  resetStatus();
-  guideMoveStatus=1; 
-  }
-}
-
-
-void slowMove() {
-  if (slowMoveStatus==0){
+  if guide
   cli();//stop interrupts
-  OCR1A = compareRAslow;
+  OCR1A = compareRaGuide;
   TCCR1B &= ~(1 << CS12) & ~(1 << CS11) & ~(1 << CS11);  //clear past config (set all back to 0)
-  TCCR1B |= (0 << CS12) | (1 << CS11) | (1 << CS10);  // Set CS12, CS11 and CS10 bits for 64 prescaler
+  TCCR1B |= (0 << CS12) | (0 << CS11) | (1 << CS10);  // Set CS12, CS21, CS10 bits for 1 prescaler
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei();//allow interrupts
-   // Pin config for step-config on the driverboard ms1RA ms2RA
-   //...
-   //
-  resetStatus(); 
-  slowMoveStatus=1;
-  } 
+  // Pin config for step-config on the driverboard ms1RA ms2RA
+  digitalWrite(enableRa, HIGH);
+  digitalWrite(directionRa, HIGH);
+  digitalWrite(ms1Ra, HIGH);
+  digitalWrite(ms2Ra, HIGH);
+  digitalWrite(ms3Ra, HIGH);
+/*pinMode(enableRa, OUTPUT);
+pinMode(directionRa, OUTPUT);
+pinMode(stepRa, OUTPUT);
+pinMode(ms1Ra, OUTPUT);
+pinMode(ms2Ra, OUTPUT);
+  *///
 }
 
 void fastMove() {
@@ -149,18 +162,7 @@ void fastMove() {
 }
 
 void resetStatus(){
-  slowMoveStatus=0;
   fastMoveStatus = 0;
   guideMoveStatus=0;
-  digitalWrite (ledMode,0);
 }
-
-void receiveDataSerial(){
-GuideStatus = atof(strtok(string_received, ":"));
-RaStatus = atof(strtok(NULL, ":"));
-DecStatus = atof(strtok(NULL, ":"));
-FocStatus = atof(strtok(NULL, ":"));
-MoveSpeedRaw = atof(strtok(NULL, ":"));
- return;
- }
 
